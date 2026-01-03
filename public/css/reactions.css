@@ -1,0 +1,10 @@
+.reactions-row { display:flex; gap:.75rem; align-items:center; }
+.reaction-btn {
+  display:flex; align-items:center; gap:.35rem;
+  padding:.35rem .55rem; border:1px solid #ddd; border-radius:999px; background:#fff;
+  cursor:pointer; line-height:1;
+}
+.reaction-btn .emoji { font-size:1.25rem; }
+.reaction-btn .count { font-variant-numeric: tabular-nums; min-width:1.5ch; text-align:right; }
+.reaction-btn.selected { border-color:#555; box-shadow:0 0 0 2px rgba(0,0,0,.05) inset; }
+.reaction-btn:focus { outline:2px solid #555; outline-offset:2px; }

@@ -1,0 +1,23 @@
+<% // expects locals: postId, initialCounts, myEmoji %>
+<div class="reactions" data-post="<%= postId %>">
+  <% const EMOJIS = [
+    { key: 'angry',   char: '😡' },
+    { key: 'sad',     char: '😕' },
+    { key: 'neutral', char: '😐' },
+    { key: 'happy',   char: '🙂' },
+    { key: 'love',    char: '🤩' },
+  ]; %>
+  <div class="reactions-row">
+    <% EMOJIS.forEach(e => { %>
+      <button class="reaction-btn <%= (myEmoji === e.key) ? 'selected' : '' %>"
+              data-emoji="<%= e.key %>"
+              aria-label="<%= e.key %>">
+        <span class="emoji"><%= e.char %></span>
+        <span class="count" data-key="<%= e.key %>"><%= (initialCounts?.[e.key] || 0) %></span>
+      </button>
+    <% }) %>
+  </div>
+</div>
+
+<script defer src="/js/reactions.js"></script>
+<link rel="stylesheet" href="/css/reactions.css">

@@ -1,0 +1,96 @@
+/* /assets/css/styles.css */
+/* === Global font: Inter everywhere === */
+html,
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-weight: 400;
+}
+
+/* Hero title */
+.site-heading h1 {
+  text-shadow: 0 2px 8pxrgba(0,0,0,0.25);
+  font-size: 3.25rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  margin-bottom: 0.4rem;
+  color: #ffffff;
+}
+
+/* Hero subtitle */
+.site-heading .subheading {
+  font-size: 1.3rem;
+  font-weight: 400;
+  margin-bottom: 3.5rem; /* increased spacing */
+  color: #e0e0e0;
+}
+
+/* Hero description text */
+.site-heading .lead {
+  font-size: 1rem;
+  font-weight: 400;
+  max-width: 600px;
+  margin: 0 auto 2.25rem; /* spacing above CTA */
+  color: #d8d8d8;
+  line-height: 1.5;
+}
+
+/* Section heading: "Trending takes" */
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Post list title */
+.post-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+/* Post list subtitle/excerpt */
+.post-subtitle {
+  font-size: 0.98rem;
+  font-weight: 400;
+  color: #555;
+}
+
+/* Meta line under each take */
+.post-meta {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+header.masthead {
+  padding-bottom: 7rem;
+}
+
+/* Navbar "Pulse" brand – make it feel like a logo */
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Make "Trending takes" feel like a section title with a brand accent */
+.section-title {
+  position: relative;
+  display: inline-block;
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 40%;
+  height: 3px;
+  background-color: #0090A1; /* same teal as your CTA */
+  border-radius: 2px;
+}
+
+.post-preview {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}

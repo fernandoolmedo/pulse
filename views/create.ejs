@@ -1,0 +1,115 @@
+<!-- views/create.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('layouts/header'); -%>
+  <body>
+    <%- include('layouts/navbar'); -%>
+
+    <header class="masthead" style="background-image: url('/img/contact-bg.jpg')">
+      <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+          <div class="col-md-10 col-lg-8 col-xl-7">
+            <div class="page-heading">
+              <h1>Create New Post</h1>
+              <span class="subheading">Create and submit a post for everyone to see</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="mb-4">
+      <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+          <div class="col-md-10 col-lg-8 col-xl-7">
+
+            <p>Use this form to submit a post</p>
+
+            <!-- Error messages (expects flashed `errors` or locals) -->
+            <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+              <div class="alert alert-danger" role="alert">
+                <ul class="mb-0">
+                  <% errors.forEach(function (e) { %><li><%= e %></li><% }) %>
+                </ul>
+              </div>
+            <% } %>
+
+            <div class="my-5">
+              <form id="createPostForm" action="/post/store" method="POST" enctype="multipart/form-data" novalidate>
+                <!-- image -->
+                <div class="mb-3">
+                  <label for="image" class="form-label">Choose an image</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="image"
+                    name="image"
+                    accept="image/*"
+                    required
+                  />
+                  <div class="form-text">PNG/JPG up to 5 MB.</div>
+                </div>
+
+                <!-- title -->
+                <div class="form-floating mb-3">
+                  <input
+                    class="form-control"
+                    id="title"
+                    name="title"
+                    type="text"
+                    placeholder="Enter your title..."
+                    value="<%= (typeof data !== 'undefined' && data.title) ? data.title : '' %>"
+                    maxlength="140"
+                    required
+                  />
+                  <label for="title">Title</label>
+                </div>
+
+                <!-- body -->
+                <div class="mb-3">
+                  <label for="body" class="form-label">Body</label>
+                  <textarea
+                    class="form-control"
+                    id="body"
+                    name="body"
+                    rows="8"
+                    required><%= (typeof data !== 'undefined' && data.body) ? data.body : '' %></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary text-uppercase">
+                  Submit
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('layouts/footer'); -%>
+    <%- include('layouts/scripts'); -%>
+
+    <!-- Only initialize Summernote if the library is present -->
+    <script>
+    (function () {
+        if (typeof $ !== 'undefined' && $.fn && $.fn.summernote) {
+        $('#body').summernote({
+            placeholder: 'Enter your body here...',
+            tabsize: 2,
+            height: 280,
+            toolbar: [
+            ['style', ['bold', 'italic', 'underline', 'clear']],
+            ['font', ['strikethrough', 'superscript', 'subscript']],
+            ['fontsize', ['fontsize']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['insert', ['link', 'picture']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+        }
+    })();
+    </script>
+
+  </body>
+</html>

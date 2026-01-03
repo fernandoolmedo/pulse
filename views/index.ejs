@@ -1,0 +1,105 @@
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('layouts/header'); -%>
+  <body>
+    <%- include('layouts/navbar'); -%>
+
+    <!-- Page Header -->
+    <header class="masthead" style="background-image: url('/img/home-bg.jpg')">
+      <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+          <div class="col-md-10 col-lg-8 col-xl-7">
+            <div class="site-heading text-center">
+              <h1>Pulse</h1>
+              <span class="subheading">The real-time pulse of what people think.</span>
+              <p class="lead">
+                Hot takes on food, tech, fashion, and everything else.
+                Tap an emoji to drop your take and see where the crowd stands.
+              </p>
+
+              <div class="mt-4">
+                <% if (loggedIn) { %>
+                  <a class="btn btn-primary btn-lg me-2" href="/posts/new">
+                    Create a take
+                  </a>
+                <% } else { %>
+                  <a class="btn btn-primary btn-lg me-2" href="/auth/register">
+                    Join Pulse
+                  </a>
+                  <a class="btn btn-outline-light btn-lg" href="/auth/login">
+                    Log in
+                  </a>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container px-4 px-lg-5">
+      <div class="row gx-4 gx-lg-5 justify-content-center">
+        <div class="col-md-10 col-lg-8 col-xl-7">
+
+          <h2 class="mb-4 mt-4">Trending takes</h2>
+
+          <% if (!posts || posts.length === 0) { %>
+            <div class="text-center my-5">
+              <h3>No takes yet.</h3>
+              <% if (loggedIn) { %>
+                <p>Be the first to post something everyone can react to.</p>
+                <a href="/posts/new" class="btn btn-primary btn-lg">
+                  Create a take
+                </a>
+              <% } else { %>
+                <p>Be the first to post a take and see what people really think.</p>
+                <a href="/auth/register" class="btn btn-primary btn-lg">
+                  Join Pulse
+                </a>
+              <% } %>
+            </div>
+          <% } else { %>
+
+            <% for (var i = 0; i < posts.length; i++) { const p = posts[i]; %>
+              <div class="post-preview">
+                <a href="/post/<%= p._id %>">
+                  <h2 class="post-title"><%= p.title %></h2>
+                  <% if (p.excerpt) { %>
+                    <h3 class="post-subtitle"><%= p.excerpt %></h3>
+                  <% } %>
+                </a>
+
+                <p class="post-meta mb-1">
+                  <% if (p.userid && p.userid.username) { %>
+                    <span class="fw-semibold">@<%= p.userid.username %></span>
+                  <% } else { %>
+                    <span class="fw-semibold">@anonymous</span>
+                  <% } %>
+                  &middot;
+                  <span><%= new Date(p.datePosted).toDateString() %></span>
+                </p>
+
+                <p class="text-muted small mb-2">Tap to react 👇</p>
+
+                <%- include('partials/reactions', {
+                  postId: p._id.toString(),
+                  initialCounts: p.reactions || {},
+                  myEmoji: null
+                }) %>
+              </div>
+
+              <hr class="my-4" />
+            <% } %>
+
+          <% } %>
+
+        </div>
+      </div>
+    </div>
+
+    <%- include('layouts/footer'); -%>
+    <%- include('layouts/scripts'); -%>
+  </body>
+</html>

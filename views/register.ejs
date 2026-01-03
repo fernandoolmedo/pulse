@@ -1,0 +1,86 @@
+<!-- views/register.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('layouts/header'); -%>
+  <body>
+    <%- include('layouts/navbar'); -%>
+
+    <header class="masthead" style="background-image: url('/img/contact-bg.jpg')">
+      <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+          <div class="col-md-10 col-lg-8 col-xl-7">
+            <div class="page-heading">
+              <h1>Register a new account</h1>
+              <span class="subheading">New users? Sign up below</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="mb-4">
+      <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+          <div class="col-md-10 col-lg-8 col-xl-7">
+            <p>Use this form to register an account</p>
+
+            <!-- Error messages -->
+            <% if (errors && errors.length > 0) { %>
+              <div class="alert alert-danger" role="alert">
+                <ul class="mb-0">
+                  <% errors.forEach(function(error){ %>
+                    <li><%= error %></li>
+                  <% }) %>
+                </ul>
+              </div>
+            <% } %>
+
+            <!-- Registration Form -->
+            <form id="registerForm" action="/user/register" method="POST" novalidate>
+              
+              <!-- Username -->
+              <div class="control-group">
+                <div class="form-group floating-label-form-group controls">
+                  <label for="username">Username</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Choose a username"
+                    id="username"
+                    name="username"
+                    value="<%= (data && data.username) ? data.username : '' %>"
+                    required
+                    autocomplete="username"
+                  />
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="control-group">
+                <div class="form-group floating-label-form-group controls">
+                  <label for="password">Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    placeholder="Password"
+                    id="password"
+                    name="password"
+                    required
+                    autocomplete="new-password"
+                  />
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary text-uppercase mt-3">
+                Register
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('layouts/footer'); -%>
+    <%- include('layouts/scripts'); -%>
+  </body>
+</html>

@@ -1,0 +1,55 @@
+<!-- views/post.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('layouts/header'); -%>
+  <body>
+    <%- include('layouts/navbar'); -%>
+
+    <!-- Page Header -->
+    <header class="masthead" style="background-image: url('/img/post-bg.jpg')">
+      <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+          <div class="col-md-10 col-lg-8 col-xl-7">
+            <div class="post-heading">
+              <h1><%= post.title %></h1>
+              <span class="meta">
+                Posted by <%= (post.userid && post.userid.username) ? post.userid.username : 'Unknown' %>
+                on <%= new Date(post.datePosted).toDateString() %>
+              </span>
+
+              <% if (excerpt) { %>
+                <p class="lead mt-3"><%= excerpt %></p>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Post Content -->
+    <article class="mb-4">
+      <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+          <div class="col-md-10 col-lg-8 col-xl-7 post-body">
+            <%- safeBody %> <!-- sanitized, unescaped HTML -->
+
+            <!-- Reactions Component -->
+            <%- include('partials/reactions', {
+              postId: post._id.toString(),
+              initialCounts,
+              myEmoji: myEmojiForThisViewer
+            }) %>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <%- include('layouts/footer'); -%>
+    <%- include('layouts/scripts'); -%>
+
+    <style>
+      .post-body img { max-width: 100%; height: auto; }
+      .post-body p { margin-bottom: 1rem; }
+    </style>
+  </body>
+</html>
