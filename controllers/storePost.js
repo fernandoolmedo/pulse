@@ -3,18 +3,25 @@ const BlogPost = require('../models/BlogPost.js');
 
 module.exports = async (req, res, next) => {
   try {
-    const { title, body } = req.body;
-    if (!title || !body) {
+    if (!req.session?.userId) return res.status(401).send('Login required');
+
+    const titleClean = (req.body.title || '').trim();
+    const bodyClean = (req.body.body || '').trim();
+
+    if (!titleClean || !bodyClean) {
       return res.status(400).send('Title and body are required');
     }
-    const image = req.file ? `/img/${req.file.filename}` : undefined;
 
-    const post = await BlogPost.create({ 
-      title, 
-      body, 
+    const image = req.file ? `/img/${req.file.filename}` : null;
+
+    const post = await BlogPost.create({
+      title: titleClean,
+      body: bodyClean,
       image,
-      userid: req.session.userId // Associate post with logged-in user's ID
+      userid: req.session.userId,
+      // datePosted: new Date(), // uncomment if your schema doesn't default this
     });
+
     return res.redirect(`/post/${post._id}`);
   } catch (err) {
     console.error('storePost error:', err);

@@ -6,6 +6,11 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const flash = require('connect-flash');
 
+const fs = require('fs');
+
+const uploadDir = path.join(__dirname, 'public', 'img');
+fs.mkdirSync(uploadDir, { recursive: true }); // ensures /public/img exists
+
 const app = express();
 
 // Environment-based settings
@@ -57,13 +62,14 @@ app.use((req, res, next) => {
 
 // Multer disk storage (add basic safety)
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, 'public/img')),
+  destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const fileFilter = (req, file, cb) => {
   if (/^image\//.test(file.mimetype)) return cb(null, true);
   cb(new Error('Only image uploads are allowed'));
 };
+
 const upload = multer({
   storage,
   fileFilter,
@@ -112,9 +118,17 @@ app.get('/pythonrequest', (req, res) => {
 // 404 handler AFTER all routes
 app.use((req, res) => res.status(404).render('notfound'));
 
+// Multer error handler
+app.use((err, req, res, next) => {
+  if (err && err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).send('Image too large (max 5MB).');
+  }
+  next(err);
+});
+
 // Global error handler LAST
 app.use((err, req, res, next) => {
-  console.error('ERROR:', err);
+  console.error('ERROR:', err.stack || err);
   res.status(500).send('Something went wrong.');
 });
 
