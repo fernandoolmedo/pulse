@@ -1,17 +1,47 @@
-## Pulse → Ads Analytics Relevance
+## Pulse – Real-Time Opinion Aggregation for Analytics-Driven Insights
 
-This project reflects core patterns used in modern ad-platform analytics:
+Pulse captures and organizes what people think—instantly.
+It’s a social platform built to transform scattered consumer opinions into **high-signal, structured data** that can be used the same way modern ad platforms use impressions and clicks.
 
-- Designed a MongoDB schema capturing **atomic, event-level user interactions**, analogous to impressions, clicks, and engagement signals
-- Modeled sentiment reactions as structured telemetry to enable **metrics, experimentation, and ranking use-cases**
-- Built transformation logic to reshape raw inputs into **dimensional, analytics-ready datasets**
-- Implemented authenticated APIs and logging endpoints demonstrating production engineering practices
-- Deployed via Heroku using fully **environment-driven configuration and secret management**
-- Established auditable user × item × sentiment × timestamp records suitable for future behavioral models
+### Why Pulse Exists
+
+Today, understanding public opinion requires scraping reviews from Google, Yelp, and company sites, then stitching them together with sentiment models and manual aggregation.
+
+Pulse solves that problem by generating analytics-ready telemetry at the source.
+
+Instead of unstructured text, the platform collects:
+- Atomic, event-level reactions
+- Consistent sentiment categories
+- Authenticated user interactions
+- Reliable timestamps and item identifiers
+
+All in a format designed for experimentation and machine learning.
+
+### Analytics Design
+Pulse was engineered from day one to mirror the data patterns used in large-scale ad systems:
+- A MongoDB schema that records **impressions, clicks, and engagement-style events** as discrete interaction records
+- Sentiment reactions modeled as structured telemetry
+- Aggregation logic that reshapes raw activity into dimensional datasets
+- Logging endpoints that enable auditability and confident reprocessing
+
+These design choices make Pulse an ideal foundation for:
+- Category classification and search
+- Personalized recommender systems
+- Ranking models based on real behavioral signals
 
 ### Tech Stack
 
-- Backend: Node.js, Express, MongoDB Atlas
-- Templating/UI: EJS, Bootstrap
-- Analytics Design: event logging and sentiment aggregation
-- Infrastructure: Heroku hosting with Git-based deployment
+#### Backend
+- Node.js
+- Express
+- MongoDB Atlas
+
+#### UI
+- EJS templating
+- Bootstrap 5
+- Static image hosting
+
+#### Infrastructure
+- Heroku deployment
+- Environment-driven configuration
+- Secret management and versioned releases
