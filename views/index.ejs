@@ -66,8 +66,22 @@
               <div class="post-preview">
                 <a href="/post/<%= p._id %>">
                   <h2 class="post-title"><%= p.title %></h2>
+
                   <% if (p.excerpt) { %>
                     <h3 class="post-subtitle"><%= p.excerpt %></h3>
+                  <% } %>
+
+                  <% var imgSrc = p.imageUrl || p.image; %>
+                  <% if (imgSrc) { %>
+                    <div class="mt-3">
+                      <img
+                        src="<%= imgSrc %>"
+                        alt="Post image"
+                        class="img-fluid rounded"
+                        loading="lazy"
+                        style="width: 100%; max-height: 320px; object-fit: cover;"
+                      />
+                    </div>
                   <% } %>
                 </a>
 
@@ -98,6 +112,10 @@
         </div>
       </div>
     </div>
+
+    <style>
+      .post-preview img { display: block; }
+    </style>
 
     <%- include('layouts/footer'); -%>
     <%- include('layouts/scripts'); -%>

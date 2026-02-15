@@ -1,5 +1,10 @@
 // controllers/storePost.js
 const BlogPost = require('../models/BlogPost.js');
+const {
+  buildImageKey,
+  uploadImageToS3,
+  cloudfrontUrlForKey
+} = require('../lib/s3');
 
 module.exports = async (req, res, next) => {
   try {
@@ -12,14 +17,35 @@ module.exports = async (req, res, next) => {
       return res.status(400).send('Title and body are required');
     }
 
-    const image = req.file ? `/img/${req.file.filename}` : null;
+    // Upload to S3 (if an image was provided)
+    let imageKey = null;
+    let imageUrl = null;
+
+    if (req.file) {
+      imageKey = buildImageKey({
+        userId: req.session.userId,
+        originalname: req.file.originalname
+      });
+
+      await uploadImageToS3({
+        buffer: req.file.buffer,        // <-- comes from multer.memoryStorage()
+        mimetype: req.file.mimetype,
+        key: imageKey
+      });
+
+      imageUrl = cloudfrontUrlForKey(imageKey);
+    }
 
     const post = await BlogPost.create({
       title: titleClean,
       body: bodyClean,
-      image,
+
+      // New fields (recommended)
+      imageKey,
+      imageUrl,
+
       userid: req.session.userId,
-      // datePosted: new Date(), // uncomment if your schema doesn't default this
+      // datePosted: new Date(),
     });
 
     return res.redirect(`/post/${post._id}`);
@@ -28,3 +54,4 @@ module.exports = async (req, res, next) => {
     return next(err);
   }
 };
+

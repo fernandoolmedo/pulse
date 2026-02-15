@@ -6,10 +6,10 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const flash = require('connect-flash');
 
-const fs = require('fs');
+//const fs = require('fs');
 
-const uploadDir = path.join(__dirname, 'public', 'img');
-fs.mkdirSync(uploadDir, { recursive: true }); // ensures /public/img exists
+//const uploadDir = path.join(__dirname, 'public', 'img');
+//fs.mkdirSync(uploadDir, { recursive: true }); // ensures /public/img exists
 
 const app = express();
 
@@ -60,18 +60,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Multer disk storage (add basic safety)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
+// Multer memory storage (Heroku disk is ephemeral)
 const fileFilter = (req, file, cb) => {
   if (/^image\//.test(file.mimetype)) return cb(null, true);
   cb(new Error('Only image uploads are allowed'));
 };
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB
 });
@@ -115,13 +111,16 @@ app.get('/pythonrequest', (req, res) => {
   res.json({ message: 'Hello Python requester! 🎉', timestamp: new Date().toISOString() });
 });
 
-// 404 handler AFTER all routes
+// 404 handler after all routes
 app.use((req, res) => res.status(404).render('notfound'));
 
 // Multer error handler
 app.use((err, req, res, next) => {
   if (err && err.code === 'LIMIT_FILE_SIZE') {
     return res.status(400).send('Image too large (max 5MB).');
+  }
+  if (err && err.message === 'Only image uploads are allowed') {
+    return res.status(400).send(err.message);
   }
   next(err);
 });
