@@ -2,9 +2,11 @@
 const InteractionEvent = require('../models/InteractionEvent');
 const crypto = require('crypto');
 
-// Analytics logger middleware for recording user interactions as structured events.
 const _dropCounter = { count: 0, lastError: null, lastErrorTime: null };
-exports.getDropStats = () => ({ ..._dropCounter });
+
+function getDropStats() {
+  return { ..._dropCounter };
+}
 
 // Hashing IP addresses for privacy while retaining the ability to identify unique visitors.
 function hashIp(ip) {
@@ -20,24 +22,23 @@ function logEvent({ req, eventType, postId = null, metadata = {} }) {
   );
 
   InteractionEvent.create({
-    userId:       req.session?.userId || null,
-    anonymousId:  req.sessionID || null,
-    sessionId:    req.sessionID || null,
+    userId:      req.session?.userId || null,
+    anonymousId: req.sessionID || null,
+    sessionId:   req.sessionID || null,
     eventType,
-    postId:       postId || null,
-    route:        req.originalUrl || null,
-    method:       req.method || null,
-    userAgent:    req.get('user-agent') || null,
-    ip:           hashIp(req.ip),
-    metadata:     enrichedMetadata,
-  }).catch(err => {
-
+    postId:      postId || null,
+    route:       req.originalUrl || null,
+    method:      req.method || null,
+    userAgent:   req.get('user-agent') || null,
+    ip:          hashIp(req.ip),
+    metadata:    normalizedMetadata,
+  }).catch((err) => {
     _dropCounter.count += 1;
-    _dropCounter.lastError = err.message;
+    _dropCounter.lastError = err?.message || String(err);
     _dropCounter.lastErrorTime = new Date().toISOString();
 
     if (process.env.NODE_ENV !== 'production') {
-      console.error(' [analyticsLogger] Failed to log event:', err);
+      console.error('[analyticsLogger] Failed to log event:', err);
     }
   });
 }
