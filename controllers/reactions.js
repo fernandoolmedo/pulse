@@ -1,15 +1,16 @@
 // controllers/reactions.js
 const BlogPost = require('../models/BlogPost');
 const PostReaction = require('../models/PostReaction');
-const { logEvent } = require('../middleware/analyticsLogger'); // <-- NEW
+const { logEvent } = require('../middleware/analyticsLogger');
 
-const ALLOWED = new Set(['angry','sad','neutral','happy','love']);
+const ALLOWED = new Set(['angry', 'sad', 'neutral', 'happy', 'love']);
 const DEFAULT_COUNTS = { angry: 0, sad: 0, neutral: 0, happy: 0, love: 0 };
 
 exports.getReactions = async (req, res) => {
   try {
     const postId = req.params.id;
-    const post = await BlogPost.findById(postId).select('reactions').lean();
+
+    const post = await BlogPost.findById(postId).select('reactions category').lean();
     if (!post) return res.status(404).json({ error: 'Post not found' });
 
     const counts = { ...DEFAULT_COUNTS, ...(post.reactions || {}) };
@@ -20,13 +21,13 @@ exports.getReactions = async (req, res) => {
       myEmoji = r?.emoji || null;
     }
 
-    // Optional: log that the user opened the reactions panel
     logEvent({
       req,
       eventType: 'view_reactions',
       postId,
       metadata: {
         myEmoji,
+        category: post.category || null,
       },
     });
 
@@ -51,7 +52,10 @@ exports.setReaction = async (req, res) => {
 
     await PostReaction.updateOne(
       { postId, userId: req.session.userId },
-      { $set: { emoji, updatedAt: new Date() } },
+      {
+        $set:        { emoji, updatedAt: new Date() },
+        $setOnInsert: { createdAt: new Date() }
+      },
       { upsert: true }
     );
 
@@ -63,20 +67,23 @@ exports.setReaction = async (req, res) => {
       inc[`reactions.${emoji}`] = 1;
     }
 
-    const r = await BlogPost.updateOne({ _id: postId }, { $inc: inc });
-    if (r.matchedCount === 0) return res.status(404).json({ error: 'Post not found' });
+    const post = await BlogPost.findOneAndUpdate(
+      { _id: postId },
+      { $inc: inc },
+      { new: false, select: 'category', lean: true }
+    );
+    if (!post) return res.status(404).json({ error: 'Post not found' });
 
-    // --- ML logging: react_post ----------------------------------------
     logEvent({
       req,
       eventType: 'react_post',
       postId,
       metadata: {
-        newEmoji: emoji,
+        newEmoji:  emoji,
         prevEmoji: prev ? prev.emoji : null,
+        category:  post.category || null,
       },
     });
-    // -------------------------------------------------------------------
 
     return res.sendStatus(204);
   } catch (e) {

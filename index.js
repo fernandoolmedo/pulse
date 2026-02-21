@@ -1,6 +1,7 @@
 // index.js
 const express = require('express');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const path = require('path');
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -29,6 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 // Session (before flash, and before any middleware that uses req.session)
 if (isProd) app.set('trust proxy', 1);
 
+// In production, require SESSION_SECRET to be set for security. In development, we provide a default for convenience.
 const sessionSecret =
   process.env.SESSION_SECRET || (!isProd ? 'keyboard cat' : null);
 
@@ -37,12 +39,21 @@ if (!sessionSecret) {
   process.exit(1);
 }
 
+// Session store in MongoDB
 app.use(session({
   name: 'sid',
   secret: sessionSecret,
   resave: false,
   saveUninitialized: false,
   proxy: isProd,
+
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URL,
+    collectionName: 'sessions',
+    ttl: 60 * 60 * 24 * 7, // 7 days
+    autoRemove: 'native' // Let MongoDB handle expired session cleanup
+  }),
+
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
@@ -86,6 +97,13 @@ const logoutController = require('./controllers/logout.js');
 const authMiddleware = require('./middleware/authMiddleware.js');
 const validateMiddleWare = require('./middleware/validationMiddleware.js');
 const redirectIfAuthenticatedMiddleware = require('./middleware/redirectIfAuthenticatedMiddleware.js');
+
+// Admin-only endpoint to check analytics logger health and drop stats.
+const { getDropStats } = require('./middleware/analyticsLogger');
+app.get('/admin/analytics-health', (req, res) => {
+  if (isProd && !req.session?.userId) return res.sendStatus(403);
+  res.json(getDropStats());
+});
 
 // Routes
 app.get('/', homeController);
