@@ -1,7 +1,7 @@
 // index.js
 const express = require('express');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const MongoStore = require('connect-mongo').default || require('connect-mongo');
 const path = require('path');
 const mongoose = require('mongoose');
 const multer = require('multer');
