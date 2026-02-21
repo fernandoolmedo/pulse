@@ -39,12 +39,10 @@ module.exports = async (req, res, next) => {
     const post = await BlogPost.create({
       title: titleClean,
       body: bodyClean,
-
-      // New fields (recommended)
       imageKey,
       imageUrl,
 
-      userid: req.session.userId,
+      userId: req.session.userId,
       // datePosted: new Date(),
     });
 

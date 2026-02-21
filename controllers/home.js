@@ -10,13 +10,11 @@ module.exports = async (req, res, next) => {
   try {
     const posts = await BlogPost.find({})
       .sort({ datePosted: -1 })
-      .populate({ path: 'userid', select: 'username' })
+      .populate({ path: 'userId', select: 'username' })
       .lean();
 
     const list = posts.map(p => {
       const excerpt = stripHtml(p.body).slice(0, 160);
-      // If you ever want a safe rich snippet instead of plain text:
-      // const safeSnippet = DOMPurify.sanitize(p.body);
       return {
         ...p,
         excerpt, // plain text for the list subtitle

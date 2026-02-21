@@ -2,7 +2,7 @@
 const BlogPost = require('../models/BlogPost');
 const PostReaction = require('../models/PostReaction');
 const DOMPurify = require('isomorphic-dompurify');
-const { logEvent } = require('../middleware/analyticsLogger'); // <-- NEW
+const { logEvent } = require('../middleware/analyticsLogger');
 
 function stripHtml(html = '') {
   return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -13,7 +13,7 @@ const DEFAULT_COUNTS = { angry: 0, sad: 0, neutral: 0, happy: 0, love: 0 };
 module.exports = async (req, res, next) => {
   try {
     const post = await BlogPost.findById(req.params.id)
-      .populate({ path: 'userid', select: 'username' })
+      .populate({ path: 'userId', select: 'username' })
       .lean();
 
     if (!post) return res.status(404).render('notfound');
@@ -36,7 +36,7 @@ module.exports = async (req, res, next) => {
       eventType: 'view_post',
       postId: post._id,
       metadata: {
-        category: post.category || null,       // if you have it on BlogPost
+        category: post.category || null,
         hasImage: !!post.image,
         hasReaction: !!myEmojiForThisViewer,
       },

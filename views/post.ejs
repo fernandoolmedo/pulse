@@ -13,7 +13,7 @@
             <div class="post-heading">
               <h1><%= post.title %></h1>
               <span class="meta">
-                Posted by <%= (post.userid && post.userid.username) ? post.userid.username : 'Unknown' %>
+                Posted by <%= (post.userId && post.userId.username) ? post.userId.username : 'Unknown' %>
                 on <%= new Date(post.datePosted).toDateString() %>
               </span>
 
