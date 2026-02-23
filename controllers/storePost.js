@@ -11,7 +11,7 @@ module.exports = async (req, res, next) => {
     if (!req.session?.userId) return res.status(401).send('Login required');
 
     const titleClean = (req.body.title || '').trim();
-    const bodyClean = (req.body.body || '').trim();
+    const bodyClean  = (req.body.body  || '').trim();
 
     const titleSanitized = titleClean.replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
     const bodySanitized  = bodyClean.replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
@@ -20,31 +20,44 @@ module.exports = async (req, res, next) => {
       return res.status(400).send('Title and body are required');
     }
 
+    // FIX: Idempotency check — if this user already submitted the same title
+    // within the last 60 seconds, redirect to that post instead of creating
+    // a duplicate. Handles accidental double-clicks and impatient resubmits.
+    const recentDuplicate = await BlogPost.findOne({
+      userId:    req.session.userId,
+      title:     titleSanitized,
+      createdAt: { $gte: new Date(Date.now() - 60 * 1000) }
+    }).lean();
+
+    if (recentDuplicate) {
+      return res.redirect(`/post/${recentDuplicate._id}`);
+    }
+
     // Upload to S3 (if an image was provided)
     let imageKey = null;
     let imageUrl = null;
 
     if (req.file) {
       imageKey = buildImageKey({
-        userId: req.session.userId,
+        userId:       req.session.userId,
         originalname: req.file.originalname
       });
 
       await uploadImageToS3({
-        buffer: req.file.buffer,        // <-- comes from multer.memoryStorage()
+        buffer:   req.file.buffer,
         mimetype: req.file.mimetype,
-        key: imageKey
+        key:      imageKey
       });
 
       imageUrl = cloudfrontUrlForKey(imageKey);
     }
 
     const post = await BlogPost.create({
-      title: titleSanitized,
-      body: bodySanitized,
+      title:    titleSanitized,
+      body:     bodySanitized,
       imageKey,
       imageUrl,
-      userId: req.session.userId,
+      userId:   req.session.userId,
     });
 
     return res.redirect(`/post/${post._id}`);
@@ -53,4 +66,3 @@ module.exports = async (req, res, next) => {
     return next(err);
   }
 };
-

@@ -110,6 +110,23 @@
         }
     })();
     </script>
+    <script>
+    (function () {
+      const form = document.getElementById('createPostForm');
+      const btn  = form.querySelector('button[type="submit"]');
 
+      form.addEventListener('submit', function () {
+        // If Summernote is active, sync its HTML content to the textarea
+        // before the form serializes — otherwise body is empty on the server
+        if (typeof $ !== 'undefined' && $.fn && $.fn.summernote) {
+          $('#body').val($('#body').summernote('code'));
+        }
+
+        // Disable button and show loading state
+        btn.disabled    = true;
+        btn.textContent = 'Posting...';
+      });
+    })();
+    </script>
   </body>
 </html>
