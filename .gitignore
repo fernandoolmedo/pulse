@@ -5,3 +5,4 @@ uploads/
 public/img/*.jpg
 public/img/*.png
 .DS_Store
+pulse-pipeline-key.json
