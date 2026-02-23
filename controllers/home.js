@@ -9,7 +9,7 @@ function stripHtml(html = '') {
 module.exports = async (req, res, next) => {
   try {
     const posts = await BlogPost.find({})
-      .sort({ datePosted: -1 })
+      .sort({ createdAt: -1 })
       .populate({ path: 'userId', select: 'username' })
       .lean();
 
