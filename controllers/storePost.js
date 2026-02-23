@@ -13,7 +13,10 @@ module.exports = async (req, res, next) => {
     const titleClean = (req.body.title || '').trim();
     const bodyClean = (req.body.body || '').trim();
 
-    if (!titleClean || !bodyClean) {
+    const titleSanitized = titleClean.replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+    const bodySanitized  = bodyClean.replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+
+    if (!titleSanitized || !bodySanitized) {
       return res.status(400).send('Title and body are required');
     }
 
@@ -37,13 +40,11 @@ module.exports = async (req, res, next) => {
     }
 
     const post = await BlogPost.create({
-      title: titleClean,
-      body: bodyClean,
+      title: titleSanitized,
+      body: bodySanitized,
       imageKey,
       imageUrl,
-
       userId: req.session.userId,
-      // datePosted: new Date(),
     });
 
     return res.redirect(`/post/${post._id}`);
