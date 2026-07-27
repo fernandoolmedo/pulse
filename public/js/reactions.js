@@ -4,6 +4,12 @@
   if (!roots.length) return;
 
   roots.forEach(root => {
+    // Guard against this script being loaded more than once on a page:
+    // a second execution would bind a duplicate click handler to every
+    // button, firing one PUT per handler and inflating the counters.
+    if (root.dataset.bound) return;
+    root.dataset.bound = '1';
+
     const postId = root.dataset.post;
 
     // local state per widget

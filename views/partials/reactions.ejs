@@ -18,6 +18,7 @@
     <% }) %>
   </div>
 </div>
-
-<script defer src="/js/reactions.js"></script>
-<link rel="stylesheet" href="/css/reactions.css">
+<% // reactions.js and reactions.css are page-level assets loaded once by
+   // layouts/scripts.ejs and layouts/header.ejs. Do not load them here —
+   // this partial renders once per post, so a <script> tag would execute
+   // the reactions IIFE N+1 times and bind N+1 click handlers per button. %>
