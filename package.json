@@ -5,7 +5,9 @@
   "description": "Pulse - the real-time pulse of what people think.",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "lint": "eslint .",
+    "test": "node --test \"test/**/*.test.js\""
   },
   "author": "",
   "license": "ISC",
@@ -27,6 +29,9 @@
     "multer": "^2.0.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.0",
+    "globals": "^17.9.0",
     "nodemon": "^3.1.10"
   }
 }
