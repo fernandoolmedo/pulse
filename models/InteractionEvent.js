@@ -12,7 +12,9 @@ const EVENT_TYPES = [
   'login',            // user logged in
   'logout',           // user logged out
 ];
-exports.EVENT_TYPES = EVENT_TYPES;
+// NOTE: `exports.X = ...` is pointless in this file — module.exports is
+// reassigned to the model at the bottom, which discards it. EVENT_TYPES and
+// coerceMetadata are attached to the model export instead.
 
 // Using strict sub-schemas instead of Mixed:
 //   - Mongoose validates the shape at write time
@@ -26,7 +28,8 @@ const viewPostMetaSchema = new mongoose.Schema({
 }, { _id: false });
 
 const viewReactionsMetaSchema = new mongoose.Schema({
-  myEmoji: { type: String, default: null },
+  myEmoji:  { type: String, default: null },
+  category: { type: String, default: null },  // from post.category
 }, { _id: false });
 
 const reactPostMetaSchema = new mongoose.Schema({
@@ -55,6 +58,25 @@ const META_SCHEMAS = {
   view_feed:      viewFeedMetaSchema,
   // Events with no structured metadata (login, logout, etc.) get {}
 };
+
+// Coerce a raw metadata object into exactly the shape META_SCHEMAS declares
+// for this event type:
+//   - unknown keys are dropped (same as a strict sub-schema would)
+//   - missing keys are filled with the sub-schema's default
+//   - present keys are cast, throwing CastError on a type mismatch
+// Attached to the model export for unit testing; the pre-validate hook below
+// is the only caller in production.
+function coerceMetadata(eventType, metadata) {
+  const schema = META_SCHEMAS[eventType];
+  if (!schema) return {};
+
+  const out = {};
+  for (const [pathName, schemaType] of Object.entries(schema.paths)) {
+    const raw = metadata == null ? undefined : metadata[pathName];
+    out[pathName] = raw == null ? schemaType.getDefault() : schemaType.cast(raw);
+  }
+  return out;
+}
 
 const interactionEventSchema = new mongoose.Schema(
   {
@@ -132,4 +154,23 @@ interactionEventSchema.index({
   createdAt: 1,
 });
 
-module.exports = mongoose.model('InteractionEvent', interactionEventSchema);
+// Enforce the per-event-type metadata shape this file has always documented.
+// Without it `metadata` was a free-form Object and the sub-schemas above were
+// dead code, so a typo at a call site silently produced a garbage column.
+// A CastError here rejects the create(); logEvent is fire-and-forget and
+// counts the drop, so a bad event never breaks the request that produced it.
+interactionEventSchema.pre('validate', function (next) {
+  try {
+    this.metadata = coerceMetadata(this.eventType, this.metadata);
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+const InteractionEvent = mongoose.model('InteractionEvent', interactionEventSchema);
+
+InteractionEvent.EVENT_TYPES = EVENT_TYPES;
+InteractionEvent.coerceMetadata = coerceMetadata;
+
+module.exports = InteractionEvent;
