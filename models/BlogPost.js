@@ -2,6 +2,35 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const CATEGORIES = [
+  'food-drink',
+  'tech',
+  'style-beauty',
+  'entertainment',
+  'sports',
+  'travel',
+  'culture',
+  'pets',
+  'other'
+];
+
+// Display names for the create form. Keyed by the stored slug so the database
+// never holds presentation strings.
+const CATEGORY_LABELS = {
+  'food-drink':    'Food & Drink',
+  'tech':          'Tech',
+  'style-beauty':  'Style & Beauty',
+  'entertainment': 'Entertainment',
+  'sports':        'Sports',
+  'travel':        'Travel',
+  'culture':       'Culture',
+  'pets':          'Pets',
+  'other':         'Other'
+};
+
+const MAX_TAGS = 5;
+const MAX_TAG_LENGTH = 24;
+
 const BlogPostSchema = new Schema(
 {
     title: {
@@ -23,17 +52,13 @@ const BlogPostSchema = new Schema(
       index: true
     },
 
+    // Locked taxonomy (2026-07-27): 9 broad buckets, with `tags` carrying the
+    // granularity. Splitting a bucket later is cheap; merging is not.
+    // Safe to change in place — nothing wrote `category` before this, so every
+    // existing post is 'other' or has no value at all. No migration required.
     category: {
       type: String,
-      enum: [
-        'technology',
-        'lifestyle',
-        'gaming',
-        'music',
-        'sports',
-        'science',
-        'other'
-      ],
+      enum: CATEGORIES,
       default: 'other',
       index: true
     },
@@ -64,4 +89,10 @@ const BlogPostSchema = new Schema(
 );
 
 const BlogPost = mongoose.model('BlogPost', BlogPostSchema);
+
+BlogPost.CATEGORIES = CATEGORIES;
+BlogPost.CATEGORY_LABELS = CATEGORY_LABELS;
+BlogPost.MAX_TAGS = MAX_TAGS;
+BlogPost.MAX_TAG_LENGTH = MAX_TAG_LENGTH;
+
 module.exports = BlogPost;
