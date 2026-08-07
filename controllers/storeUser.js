@@ -1,5 +1,6 @@
 // controllers/storeUser.js
 const User = require('../models/User.js');
+const { logEvent } = require('../middleware/analyticsLogger');
 
 function scrubForm(body = {}) {
   const { password, confirmPassword, ...rest } = body;
@@ -16,6 +17,10 @@ module.exports = async (req, res, next) => {
     const user = await User.create(payload);
 
     req.session.userId = user._id;
+
+    // After the session is set, so the event carries the new userId.
+    logEvent({ req, eventType: 'register' });
+
     return res.redirect('/');
   } catch (error) {
     console.error('User registration error:', error);

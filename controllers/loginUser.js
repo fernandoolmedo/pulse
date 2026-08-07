@@ -1,6 +1,7 @@
 // controllers/loginUser.js
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const { logEvent } = require('../middleware/analyticsLogger');
 
 module.exports = async (req, res, next) => {
   try {
@@ -22,7 +23,12 @@ module.exports = async (req, res, next) => {
     }
 
     req.session.userId = user._id;
-    console.log(`✅ Login successful for ${username} (userId: ${user._id})`);
+
+    // Replaces a console.log that printed the username and id on every login;
+    // the interaction log is the durable record and keeps usernames out of
+    // the Heroku log drain.
+    logEvent({ req, eventType: 'login' });
+
     res.redirect('/');
   } catch (err) {
     next(err);

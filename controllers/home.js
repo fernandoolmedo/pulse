@@ -1,6 +1,6 @@
 // controllers/home.js
 const BlogPost = require('../models/BlogPost');
-const DOMPurify = require('isomorphic-dompurify'); // npm i isomorphic-dompurify
+const { logEvent } = require('../middleware/analyticsLogger');
 
 function stripHtml(html = '') {
   return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -20,6 +20,12 @@ module.exports = async (req, res, next) => {
         excerpt, // plain text for the list subtitle
         // safeSnippet,
       };
+    });
+
+    logEvent({
+      req,
+      eventType: 'view_feed',
+      metadata: { postCount: list.length },
     });
 
     res.render('index', { posts: list });
