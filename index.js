@@ -95,13 +95,14 @@ const loginController = require('./controllers/login.js');
 const loginUserController = require('./controllers/loginUser.js');
 const logoutController = require('./controllers/logout.js');
 const authMiddleware = require('./middleware/authMiddleware.js');
+const adminMiddleware = require('./middleware/adminMiddleware.js');
 const validateMiddleWare = require('./middleware/validationMiddleware.js');
 const redirectIfAuthenticatedMiddleware = require('./middleware/redirectIfAuthenticatedMiddleware.js');
 
 // Admin-only endpoint to check analytics logger health and drop stats.
+// Access is restricted to the usernames listed in ADMIN_USERNAMES.
 const { getDropStats } = require('./middleware/analyticsLogger');
-app.get('/admin/analytics-health', (req, res) => {
-  if (isProd && !req.session?.userId) return res.sendStatus(403);
+app.get('/admin/analytics-health', adminMiddleware, (req, res) => {
   res.json(getDropStats());
 });
 
