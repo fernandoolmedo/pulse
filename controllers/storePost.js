@@ -5,6 +5,8 @@ const {
   uploadImageToS3,
   cloudfrontUrlForKey
 } = require('../lib/s3');
+const { normalizeCategory, parseTags } = require('../lib/postInput');
+const { logEvent } = require('../middleware/analyticsLogger');
 
 module.exports = async (req, res, next) => {
   try {
@@ -52,12 +54,28 @@ module.exports = async (req, res, next) => {
       imageUrl = cloudfrontUrlForKey(imageKey);
     }
 
+    const category = normalizeCategory(req.body.category);
+    const tags     = parseTags(req.body.tags);
+
     const post = await BlogPost.create({
       title:    titleSanitized,
       body:     bodySanitized,
+      category,
+      tags,
       imageKey,
       imageUrl,
       userId:   req.session.userId,
+    });
+
+    logEvent({
+      req,
+      eventType: 'create_post',
+      postId:    post._id,
+      metadata: {
+        category,
+        hasImage:  !!imageUrl,
+        tagsCount: tags.length,
+      },
     });
 
     return res.redirect(`/post/${post._id}`);

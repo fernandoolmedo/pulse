@@ -65,6 +65,37 @@
                   <label for="title">Title</label>
                 </div>
 
+                <!-- category -->
+                <div class="mb-3">
+                  <label for="category" class="form-label">Category</label>
+                  <select class="form-select" id="category" name="category">
+                    <% const cats   = (typeof categories !== 'undefined') ? categories : ['other']; %>
+                    <% const labels = (typeof categoryLabels !== 'undefined') ? categoryLabels : {}; %>
+                    <% const chosen = (typeof data !== 'undefined' && data.category) ? data.category : 'other'; %>
+                    <% cats.forEach(function (c) { %>
+                      <option value="<%= c %>" <%= c === chosen ? 'selected' : '' %>><%= labels[c] || c %></option>
+                    <% }) %>
+                  </select>
+                </div>
+
+                <!-- tags -->
+                <div class="mb-3">
+                  <label for="tags" class="form-label">
+                    Tags <span class="text-muted">(optional)</span>
+                  </label>
+                  <input
+                    class="form-control"
+                    id="tags"
+                    name="tags"
+                    type="text"
+                    placeholder="ramen, late night, seoul"
+                    value="<%= (typeof data !== 'undefined' && data.tags) ? data.tags : '' %>"
+                  />
+                  <div class="form-text">
+                    Comma separated, up to <%= (typeof maxTags !== 'undefined') ? maxTags : 5 %>.
+                  </div>
+                </div>
+
                 <!-- body -->
                 <div class="mb-3">
                   <label for="body" class="form-label">Body</label>
